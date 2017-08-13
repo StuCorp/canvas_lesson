@@ -28,13 +28,23 @@ var init = function(){
   var asteroid1 = new Asteroid({
   name: "(2006 SM198)", 
   sizeM: 127.2198785394, 
-  hazardous: false, 
+  hazardous: true, 
   arrivalDateString: "2017-08-15", 
   speedKS: "11.9744199394", 
   missDistanceKm: "43331116"
   });
 
+  var asteroid2 = new Asteroid({
+  name: "(2006 SM198)", 
+  sizeM: 127.2198785394, 
+  hazardous: false, 
+  arrivalDateString: "2017-08-16", 
+  speedKS: "11.9744199394", 
+  missDistanceKm: "43331116"
+  });
+
   asteroids.push(asteroid1);
+  asteroids.push(asteroid2);
   // asteroids.push(asteroid2);
   // asteroids.push(asteroid3);
   // asteroids.push(asteroid4);

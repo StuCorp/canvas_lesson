@@ -23,8 +23,10 @@ var infoBoxPosX;
 var infoBoxPosY;
 var infoBoxWidth;
 var infoBoxHeight;
-  var earthDimension;
-  var dayLength;
+var infoOBoxOriginalHeight;
+var earthDimension;
+var dayLength;
+var paused;
 
 
 var earthShadowIterator;
@@ -66,13 +68,15 @@ var init = function(asteroids){
   earthShadowIterator = 0; 
   earthDimension = canvas.height/4;
   dayLength =500;
+  paused = false;
   
- i =0;
+  i =0;
 
-  infoBoxPosX = canvas.width - (canvas.width/5);
+  infoBoxPosX = canvas.width - (canvas.width/3);
   infoBoxPosY = 0; 
-  infoBoxWidth = canvas.width/5;
+  infoBoxWidth = canvas.width/3;
   infoBoxHeight = canvas.height/5;
+  infoOBoxOriginalHeight = infoBoxHeight;
   infoBoxClicked = false; 
 
 
@@ -80,10 +84,24 @@ var init = function(asteroids){
 
     if(event.x> infoBoxPosX && event.x < infoBoxPosX + infoBoxWidth && event.y > infoBoxPosY && event.y < infoBoxPosY + infoBoxHeight){
       // debugger;
-      infoBoxClicked = true;
+      if (infoBoxClicked===false){ 
+        infoBoxClicked = true;
+      } else{
+        infoBoxClicked = false; 
+      }
     }
-    
   });
+
+  canvas.addEventListener('click', function(event){
+
+      // debugger;
+      if (paused===false){ 
+        paused = true;
+      } else{
+        paused = false; 
+      }
+      console.log(paused);
+    });
 
 
   window.requestAnimationFrame(draw); 
@@ -91,16 +109,21 @@ var init = function(asteroids){
 
 
 var draw = function(){ 
- var canvas = document.getElementById('main-canvas');
- var context = canvas.getContext('2d');
- context.clearRect(0,0, canvas.width,canvas.height);
- context.fillStyle = 'black';
- context.fillRect(0,0, canvas.width,canvas.height);
- today = new Date(); 
+
+  if(!paused){
+
+   var canvas = document.getElementById('main-canvas');
+   var context = canvas.getContext('2d');
+   context.clearRect(0,0, canvas.width,canvas.height);
+   context.fillStyle = 'black';
+   context.fillRect(0,0, canvas.width,canvas.height);
+   today = new Date(); 
 
 
- drawDate(context, canvas);
- count++;
+   drawDate(context, canvas);
+   drawDoomsdayClock(context, canvas);
+   
+   count++;
  // console.log(count);
 
  if(count> dayLength){
@@ -118,18 +141,17 @@ var draw = function(){
      asteroidX-= 5;
 
      asteroidsArray.forEach(function(asteroid){
-
-
       if(asteroid.arrivalDate.getFullYear() === stableToday.getFullYear() && 
         asteroid.arrivalDate.getMonth() === stableToday.getMonth() && 
         asteroid.arrivalDate.getDate() === stableToday.getDate() && asteroid.arrived === false){
         asteroid.xPos = canvas.width;
-      asteroid.yPos = earthY + ((canvas.height/ 20) * asteroid.missDistance);
+      var aboveOrBelowEarth = _.random(0,1) === 0 ? -1 : 1;
+      asteroid.yPos = (earthY + earthDimension/2) + ((canvas.height/ 20) * asteroid.missDistance * aboveOrBelowEarth);
       asteroid.image = new Image();
       asteroid.image.src = "./images/Asteroid.png"; 
       asteroid.arrived = true;
       asteroidsToDraw.push(asteroid);
-      }
+    }
   });
 
 
@@ -151,47 +173,30 @@ drawAsteroids(context, canvas, asteroidsToDraw);
 
     //info box
 
-
-    console.log(infoBoxPosX); //960
-    console.log(infoBoxPosX + infoBoxWidth); //1200
-    console.log(infoBoxPosY); //0
-    console.log(infoBoxPosY + infoBoxHeight); //70
-
     context.strokeStyle = 'hotpink';
     context.strokeRect(infoBoxPosX, infoBoxPosY, infoBoxWidth, infoBoxHeight);
 
     // debugger;
-    if(infoBoxClicked === true && infoBoxHeight < (canvas.height/2)){
-      infoBoxHeight++;
+    if(infoBoxClicked === true && infoBoxHeight < (canvas.height-1)){
+      infoBoxHeight+= 2;
     };
 
+    if(infoBoxClicked === false && infoBoxHeight > canvas.height/5){
+      infoBoxHeight-= 2;
+    };
+
+
+
     // Moon
-    var time = new Date();
-
-     context.save();
-     context.rotate(((2 * Math.PI) / 6) * time.getSeconds() + ((2 * Math.PI) / 6000) * time.getMilliseconds());
-     context.translate(200, 200);
-     context.drawImage(moon, earthX, earthY, 20, 20);
-     context.restore();
-
-
-
     context.save()           
-        // set origin to center
+        // set origin to earth center
         context.translate(earthX + (earthDimension/2), earthY + (earthDimension/2));
-        
-        // draw sun
-        
         // rotate + move along x
         context.rotate(i / (dayLength/7));
         context.translate(earthDimension/1.5, 0);
-        
         // draw planet
-     context.drawImage(moon, 0, 0, 10, 10);
-
-        
+        context.drawImage(moon, 0, 0, 10, 10);
         context.restore();
-        
         i++;
 
      //
@@ -203,12 +208,21 @@ drawAsteroids(context, canvas, asteroidsToDraw);
      // context.restore();
 
 
+//end of paused if statement
+}
 
-    window.requestAnimationFrame(draw); 
+if(paused){
+  var canvas = document.getElementById('main-canvas');
+  var context = canvas.getContext('2d');
+  drawPaused(context, canvas);
+}
 
-  } 
+window.requestAnimationFrame(draw); 
 
-  var drawEarth = function(context, canvas){
+
+} 
+
+var drawEarth = function(context, canvas){
   // if (earthX> 600){
   //   earthX = -50;
   // }
@@ -246,16 +260,20 @@ var drawAsteroids = function(context, canvas, asteroidsToDraw){
       // context.rotate(Math.PI/180);
       // context.translate((asteroid.xPos + (asteroid.size/2)) * -1, (asteroid.yPos + (asteroid.size/2)) * -1);
       // context.shadowColor = 'white';
-   context.shadowColor = 'rgb(' + _.random(0, 255) + ',' + _.random(0, 255) + ', ' + _.random(0, 255) + ')'; 
-
-      context.shadowBlur = 10;
-      context.shadowOffsetX = 5;
-
-    context.drawImage(asteroidImage,  asteroid.xPos, asteroid.yPos, asteroid.size, asteroid.size);
-    context.shadowColor = 'rgba(0, 0, 0, 0)'; 
+      if(asteroid.hazardous === true){
+        context.shadowColor = 'red'
+        context.shadowBlur = 60;
+        context.shadowOffsetX = 0;
+      } else{
+       context.shadowColor = 'rgb(' + _.random(0, 255) + ',' + _.random(0, 255) + ', ' + _.random(0, 255) + ')'; 
+       context.shadowBlur = 10;
+       context.shadowOffsetX = 5;
+     }
+     context.drawImage(asteroidImage,  asteroid.xPos, asteroid.yPos, asteroid.size, asteroid.size);
+     context.shadowColor = 'rgba(0, 0, 0, 0)'; 
     // context.restore();
     if(asteroid.hazardous===true){
-      drawWarning(asteroid);
+      drawWarning(context);
     }
   });
   // debugger; 
@@ -268,7 +286,8 @@ var drawAsteroids = function(context, canvas, asteroidsToDraw){
    // context.drawImage(asteroid,  asteroidX, asteroidY, 50, 50);
  };
 
- var drawWarning = function(asteroid){
+ var drawWarning = function(context){
+
 
  };
 
@@ -289,10 +308,24 @@ var drawAsteroids = function(context, canvas, asteroidsToDraw){
 
   context.font = dateTextSize + 'px Saira Semi Condensed';
   context.fillText("Day " + date + ": " + stableToday.toDateString(), canvas.width/60, canvas.height/5);
+  // debugger;
+}
+
+var drawDoomsdayClock = function(context, canvas){
+
   context.fillStyle = 'aqua';
   context.font = impactTextSize + 'px Saira';
 
-  context.fillText("Seconds until next extinction-level impact " + (bigImpactDate - today), 10, 300);
+  context.fillText("Next extinction-level impact:", infoBoxPosX + 10, 25);
+  context.fillText( (bigImpactDate - today)/1000 , infoBoxPosX + 10, 50);
+  context.fillText( "seconds left", infoBoxPosX + 200, 50);
+  // debugger;
 }
+
+var drawPaused = function(context, canvas){
+ context.fillStyle = 'red';
+ context.font = 100 + 'px Saira';
+ context.fillText("PAUSED", canvas.width/2, canvas.height/2);
+} 
 
 module.exports = MainCanvasView;
