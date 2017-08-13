@@ -32,7 +32,6 @@ var init = function(){
   arrivalDateString: "2017-08-15", 
   speedKS: "11.9744199394", 
   missDistanceKm: "43331116"
-
   });
 
   asteroids.push(asteroid1);

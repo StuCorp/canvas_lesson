@@ -1,5 +1,5 @@
 // var AsteroidHits = require('../models/AsteroidHits');
-var AsteroidHitsView = require('./asteroidHitsView');
+var MainCanvasView = require('./mainCanvasView');
 var TimelineView = require('./timelineView');
 
 var UI = function() {
@@ -20,7 +20,7 @@ UI.prototype = {
 
 //this fires the asteroid hits data into a separate view where it can be parsed and dynamically added to html
 renderAsteroidHits: function(results){
-  var asteroidHitsView = new AsteroidHitsView(results); 
+  var mainCanvasView = new MainCanvasView(results); 
 },
 
 renderTimeline: function(){
