@@ -9,7 +9,20 @@ var asteroidX;
 var count;
 var date;
 var asteroidsArray;
- var asteroidsToDraw;
+var asteroidsToDraw;
+var today; 
+var stableToday;
+var bigImpactDate; 
+var dateTextSize;
+var impactTextSize;
+var starTimer; 
+var infoBoxClicked;
+var infoBoxPosX;
+var infoBoxPosY;
+var infoBoxWidth;
+var infoBoxHeight;
+
+
 
 
 var AsteroidHitsView = function(asteroids) {
@@ -34,9 +47,31 @@ var init = function(asteroids){
   earthX = canvas.width/6;
   asteroidX = canvas.width;
   asteroidY =  130;
-
   count = 0;
   date = 0;
+  bigImpactDate = new Date(2880, 03, 16, 12, 30, 0);
+  stableToday = new Date();
+  dateTextSize = canvas.height/12;
+  impactTextSize = canvas.height/20;
+  starTimer =0;
+  
+
+
+  infoBoxPosX = canvas.width - (canvas.width/5);
+  infoBoxPosY = 0; 
+  infoBoxWidth = canvas.width/5;
+  infoBoxHeight = canvas.height/5;
+  infoBoxClicked = false; 
+
+
+  canvas.addEventListener('click', function(event){
+
+    if(event.x> infoBoxPosX && event.x < infoBoxPosX + infoBoxWidth && event.y > infoBoxPosY && event.y < infoBoxPosY + infoBoxHeight){
+      // debugger;
+      infoBoxClicked = true;
+    }
+    
+  });
 
 
   window.requestAnimationFrame(draw); 
@@ -48,14 +83,18 @@ var draw = function(){
  var context = canvas.getContext('2d');
  context.clearRect(0,0, canvas.width,canvas.height);
  context.fillStyle = 'black';
-
  context.fillRect(0,0, canvas.width,canvas.height);
+ today = new Date(); 
+
+
 
  drawDate(context, canvas);
  count++;
- console.log(count);
+ // console.log(count);
  if(count> 500){
    date++;
+   stableToday.setDate(stableToday.getDate() + 1);
+
    count=0;
  }
  drawEarth(context, canvas);
@@ -78,14 +117,14 @@ var draw = function(){
     });
 
 
-if(asteroidsToDraw.length> 0) {
+     if(asteroidsToDraw.length> 0) {
 // debugger;
-     asteroidsToDraw.forEach(function(asteroid){
-      asteroid.xPos -= asteroid.speed;
-     });
-   };
+asteroidsToDraw.forEach(function(asteroid){
+  asteroid.xPos -= asteroid.speed;
+});
+};
 
-     drawAsteroids(context, canvas, asteroidsToDraw);
+drawAsteroids(context, canvas, asteroidsToDraw);
 
 
     // console.log(count);
@@ -94,18 +133,27 @@ if(asteroidsToDraw.length> 0) {
 
     drawStars(context);
 
-//mouse click on canvas
-canvas.addEventListener('mouseenter', function(event) {
-  if (event.x > asteroidX && event.x < asteroidX+50){
-    console.log('clicked', event);
-    console.log('location', event.x, event.y);
+    //info box
+
+
+    console.log(infoBoxPosX); //960
+    console.log(infoBoxPosX + infoBoxWidth); //1200
+    console.log(infoBoxPosY); //0
+    console.log(infoBoxPosY + infoBoxHeight); //70
+
+    context.strokeStyle = 'hotpink';
+    context.strokeRect(infoBoxPosX, infoBoxPosY, infoBoxWidth, infoBoxHeight);
+
+    // debugger;
+    if(infoBoxClicked === true && infoBoxHeight < (canvas.height/2)){
+      infoBoxHeight++;
+    };
+
+    window.requestAnimationFrame(draw); 
+
   }
-});
-window.requestAnimationFrame(draw); 
 
-}
-
-var drawEarth = function(context, canvas){
+  var drawEarth = function(context, canvas){
   // if (earthX> 600){
   //   earthX = -50;
   // }
@@ -126,6 +174,9 @@ var drawAsteroids = function(context, canvas, asteroidsToDraw){
   asteroidsToDraw.forEach(function(asteroid){
     // debugger;
     context.drawImage(asteroidImage,  asteroid.xPos, asteroid.yPos, asteroid.size, asteroid.size);
+    if(asteroid.hazardous===true){
+      drawWarning(asteroid);
+    }
   });
   // debugger; 
 };
@@ -137,21 +188,31 @@ var drawAsteroids = function(context, canvas, asteroidsToDraw){
    // context.drawImage(asteroid,  asteroidX, asteroidY, 50, 50);
  };
 
+ var drawWarning = function(asteroid){
+
+ };
+
 
  var drawStars = function(context){
    var canvas = document.getElementById('main-canvas');
 
+
    var starX = Math.random() * (canvas.width - 0) + 0;
-   var starY = Math.random() * (canvas - 0) + 0;
+   var starY = Math.random() * (canvas.height - 0) + 0;
 
    context.fillStyle = 'white';
    context.fillRect(starX, starY, 2, 2);
  };
 
  var drawDate = function(context, canvas){
-  context.fillStyle = 'deeppink';
-  context.font = '48px serif';
-  context.fillText("Day " + date, 10, 50);
+  context.fillStyle = 'grey';
+
+  context.font = dateTextSize + 'px serif';
+  context.fillText("Day " + date + ": " + stableToday.toDateString(), canvas.width/60, canvas.height/5);
+  context.fillStyle = 'aqua';
+  context.font = impactTextSize + 'px serif';
+
+  context.fillText("Seconds until next extinction-level impact " + (bigImpactDate - today), 10, 300);
 }
 
 module.exports = AsteroidHitsView;

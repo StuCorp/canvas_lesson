@@ -18,17 +18,19 @@ var asteroids = [];
 var init = function(){
 
   // debugger;
-  var asteroid1 = new Asteroid({name: "sturoid", size: "100", hazardous: true, arrival_date: 1, speed: 1, miss_distance: 3});
-  var asteroid2 = new Asteroid({name: "baby", size: "20", hazardous: true, arrival_date: 2, speed: 2, miss_distance: 1});
-  var asteroid3 = new Asteroid({name: "pappi day3", size: "50", hazardous: true, arrival_date: 3, speed: 3, miss_distance: 5});
-  var asteroid4 = new Asteroid({name: "gary", size: "70", hazardous: true, arrival_date: 4, speed: 4, miss_distance: 2});
-  var asteroid5 = new Asteroid({name: "mr last comer", size: "80", hazardous: true, arrival_date: 5, speed: 5, miss_distance: 10});
+  var asteroid1 = new Asteroid({name: "sturoid", size: 100, hazardous: true, arrival_date: 1, speed: 1, miss_distance: 3});
+  var asteroid2 = new Asteroid({name: "baby", size: 20, hazardous: true, arrival_date: 2, speed: 2, miss_distance: 1});
+  var asteroid3 = new Asteroid({name: "pappi day3", size: 50, hazardous: true, arrival_date: 3, speed: 3, miss_distance: 5});
+  var asteroid4 = new Asteroid({name: "gary", size: 70, hazardous: true, arrival_date: 4, speed: 4, miss_distance: 2});
+  var asteroid5 = new Asteroid({name: "mr last comer", size: 80, hazardous: true, arrival_date: 5, speed: 5, miss_distance: 10});
+  var asteroid6 = new Asteroid({name: "mr last comer", size: 80, hazardous: true, arrival_date: 1, speed: 5, miss_distance: 10});
 
   asteroids.push(asteroid1);
   asteroids.push(asteroid2);
   asteroids.push(asteroid3);
   asteroids.push(asteroid4);
   asteroids.push(asteroid5);
+  asteroids.push(asteroid6);
 
   UI.prototype.renderAsteroidHits(asteroids);
   console.log("arrived at index's init function");
