@@ -91,6 +91,7 @@ var draw = function(){
  drawDate(context, canvas);
  count++;
  // console.log(count);
+
  if(count> 500){
    date++;
    stableToday.setDate(stableToday.getDate() + 1);
@@ -106,13 +107,18 @@ var draw = function(){
      asteroidX-= 5;
 
      asteroidsArray.forEach(function(asteroid){
-      if(asteroid.arrival_date === date && asteroid.arrived === false){
+
+
+      if(asteroid.arrivalDate.getFullYear() === stableToday.getFullYear() && 
+      asteroid.arrivalDate.getMonth() === stableToday.getMonth() && 
+      asteroid.arrivalDate.getDate() === stableToday.getDate() && asteroid.arrived === false){
         asteroid.xPos = canvas.width;
-        asteroid.yPos = earthY + ((canvas.height/ 20) * asteroid.miss_distance);
+        asteroid.yPos = earthY + ((canvas.height/ 20) * asteroid.missDistance);
         asteroid.image = new Image();
         asteroid.image.src = "./images/Asteroid.png"; 
         asteroid.arrived = true;
         asteroidsToDraw.push(asteroid);
+        debugger;
       }
     });
 
