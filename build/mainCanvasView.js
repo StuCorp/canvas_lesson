@@ -27,6 +27,8 @@ var infoOBoxOriginalHeight;
 var earthDimension;
 var dayLength;
 var paused;
+var pausedText;
+var detailTextSize;
 
 
 var earthShadowIterator;
@@ -50,6 +52,7 @@ var init = function(asteroids){
   asteroidImage.src = "./images/Asteroid.png"; 
   moon.src = "./images/Moon.png";
   var canvas = document.getElementById('main-canvas');
+   var context = canvas.getContext('2d');
 
 
   asteroidsArray = asteroids;
@@ -64,11 +67,13 @@ var init = function(asteroids){
   stableToday = new Date();
   dateTextSize = canvas.height/12;
   impactTextSize = canvas.height/20;
+  detailTextSize = canvas.height/28;
   starTimer =0;
   earthShadowIterator = 0; 
   earthDimension = canvas.height/4;
   dayLength =500;
   paused = false;
+  pausedText = canvas.width/10  ;
   
   i =0;
 
@@ -92,8 +97,10 @@ var init = function(asteroids){
     }
   });
 
-  canvas.addEventListener('click', function(event){
+  // canvas.addEventListener( "keydown", doKeyDown, true);
 
+  window.addEventListener('keydown', function(event){
+    if(event.code === "Space"){
       // debugger;
       if (paused===false){ 
         paused = true;
@@ -101,6 +108,28 @@ var init = function(asteroids){
         paused = false; 
       }
       console.log(paused);
+    }
+
+  });
+
+
+  canvas.addEventListener('keydown', function(event){
+    console.log(event);
+    console.log("mouse in the house");
+    console.log(event.x);
+ 
+  });
+
+  canvas.addEventListener('click', function(event){
+
+    asteroidsToDraw.forEach(function(asteroid){
+      // debugger;
+      if(event.layerX > asteroid.xPos && event.layerX < (asteroid.xPos + asteroid.size) && event.layerY > asteroid.yPos && event.layerY < (asteroid.yPos + asteroid.size)){
+        console.log("touching it!");
+        populateInfoBox(context, canvas, asteroid);
+      }
+    });
+      
     });
 
 
@@ -122,7 +151,7 @@ var draw = function(){
 
    drawDate(context, canvas);
    drawDoomsdayClock(context, canvas);
-   
+
    count++;
  // console.log(count);
 
@@ -215,6 +244,8 @@ if(paused){
   var canvas = document.getElementById('main-canvas');
   var context = canvas.getContext('2d');
   drawPaused(context, canvas);
+
+
 }
 
 window.requestAnimationFrame(draw); 
@@ -300,14 +331,25 @@ var drawAsteroids = function(context, canvas, asteroidsToDraw){
    var starY = Math.random() * (canvas.height - 0) + 0;
 
    // debugger;
+
+   context.shadowColor = 'gold'
+   context.shadowBlur = 60;
+   context.shadowOffsetX = 0;
    context.fillRect(starX, starY, 2, 2);
+     context.shadowColor = 'rgba(0, 0, 0, 0)'; 
+
  };
 
  var drawDate = function(context, canvas){
   context.fillStyle = 'grey';
 
+  context.shadowColor = 'aqua'
+  context.shadowBlur = 60;
+  context.shadowOffsetX = 0;
   context.font = dateTextSize + 'px Saira Semi Condensed';
   context.fillText("Day " + date + ": " + stableToday.toDateString(), canvas.width/60, canvas.height/5);
+     context.shadowColor = 'rgba(0, 0, 0, 0)'; 
+
   // debugger;
 }
 
@@ -323,9 +365,27 @@ var drawDoomsdayClock = function(context, canvas){
 }
 
 var drawPaused = function(context, canvas){
- context.fillStyle = 'red';
- context.font = 100 + 'px Saira';
- context.fillText("PAUSED", canvas.width/2, canvas.height/2);
+ context.fillStyle = 'rgba(175,4,4,0.1)';
+ context.font = pausedText + 'px Saira';
+ context.fillText("PAUSED", canvas.width/2 - (pausedText *2), canvas.height/2 + (pausedText/2));
 } 
+
+var populateInfoBox = function(context, canvas, asteroid){
+  context.fillStyle = 'black';
+  context.fillRect(20, canvas.height - (detailTextSize * 7), 300, 300);
+  // debugger;
+
+  context.fillStyle = 'white';
+  context.font = detailTextSize + 'px Saira';
+
+  context.fillText("Name:  " + asteroid.name, 20, canvas.height - (detailTextSize *6) );
+  context.fillText("Size:  " + Math.round(asteroid.sizeM, -2) + '(m)', 20, canvas.height - (detailTextSize * 5));
+  context.fillText("Harzardous:  " + asteroid.hazardous, 20, canvas.height - (detailTextSize *4));
+  context.fillText("Date of arrival:  " + asteroid.arrivalDateString, 20, canvas.height - (detailTextSize *3));
+  context.fillText("Speed:  " + Math.round(asteroid.speedKS) + '(km/s)', 20, canvas.height - (detailTextSize *2));
+  context.fillText("Will miss earth by:  " + asteroid.missDistanceKm + '(km)', 20, canvas.height - detailTextSize);
+  console.log("success");
+};
+
 
 module.exports = MainCanvasView;
